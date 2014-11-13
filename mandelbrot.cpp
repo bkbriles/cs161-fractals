@@ -1,12 +1,16 @@
 #include <iostream>
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_mouse.h>
+#include <SDL2/SDL_mixer.h>
 
 using namespace std;
 
 // function prototype/s
 int isBounded(double Cr, double Ci);
 void draw(double xO, double yO, double Z, SDL_Renderer* renderer);
+void zoom(double& xO, double& yO, double& Z, int x, int y);
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -19,6 +23,9 @@ int main(int argc, char* args[])
     double xO = 0;
     double yO = 0;
 
+    //Main loop flag
+    bool quit = false;
+
     //The window we'll be rendering to
     SDL_Window* window = NULL;
 
@@ -26,13 +33,13 @@ int main(int argc, char* args[])
     SDL_Renderer* renderer = NULL;
 
     //Initialize SDL
-    if(SDL_Init(SDL_INIT_VIDEO) < 0)
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
         cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << endl;
     }
 
     //Create window
-    window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+    window = SDL_CreateWindow( "Mandelbrot Fractal", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
     if( window == NULL )
     {
         cout << "Window could not be created! SDL_Error: " << SDL_GetError() << endl;
@@ -42,18 +49,38 @@ int main(int argc, char* args[])
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
 
-    // loop forever
-    while(true)
+    while(!quit)
     {
-        draw(xO, yO, Z, renderer);
+        // Event Handler
+        SDL_Event event;
 
-        //Update the renderer
-        SDL_RenderPresent(renderer);
+        //Handle events on queue
+        while(SDL_WaitEvent(&event))
+        {
+            switch (event.type)
+            {
+            // User requests quit
+            case SDL_QUIT:
+                quit = true;
+                break;
+            // Mouse events to handle zoom
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    zoom(xO, yO, Z, x, y);
+                }
+                break;
+            }
+
+            draw(xO, yO, Z, renderer);
+
+            //Update the renderer
+            SDL_RenderPresent(renderer);
+
+        }
     }
-
-    //Wait some seconds
-    SDL_Delay(4000);
-
 
     //Destroy window
     SDL_DestroyWindow(window);
@@ -64,6 +91,14 @@ int main(int argc, char* args[])
 }
 
 // function definition/s
+void zoom(double& xO, double& yO, double& Z, int x, int y)
+ {
+    // move the origin and zoom
+    xO = xO + Z*x/SCREEN_WIDTH - Z/2;
+    yO = yO - Z*y/SCREEN_HEIGHT + Z/2;
+    Z /= 10;
+}
+
 void draw(double xO, double yO, double Z, SDL_Renderer* renderer)
 {
     for(int y = 0; y < SCREEN_HEIGHT; y++)
@@ -83,7 +118,6 @@ void draw(double xO, double yO, double Z, SDL_Renderer* renderer)
     }
 }
 
-
 int isBounded(double Cr, double Ci)
 {
     // init our sequence point to zero
@@ -93,7 +127,8 @@ int isBounded(double Cr, double Ci)
 
     // check the first 100 terms in the sequence for boundedness
     int i;
-    for(i = 0; i < 100; i++) {
+    for(i = 0; i < 100; i++)
+    {
         // do the formula M = M*M + C
         temp = Mr;
         Mr = Mr*Mr - Mi*Mi + Cr;
@@ -101,7 +136,8 @@ int isBounded(double Cr, double Ci)
 
         // check to see if we're outside the boundary
         // boundary is a circle of rad 4 around the origin
-        if(Mr*Mr + Mi*Mi > 4) {
+        if(Mr*Mr + Mi*Mi > 4)
+        {
             return i;
         }
     }
@@ -109,5 +145,3 @@ int isBounded(double Cr, double Ci)
     // if the bound is never exceeded, say it's bounded
     return i;
 }
-
-
