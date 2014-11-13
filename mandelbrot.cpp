@@ -46,6 +46,12 @@ int main(int argc, char* args[])
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
 
+    // Draw the initial fractal
+    draw(xO, yO, Z, renderer);
+
+    //Update the renderer
+    SDL_RenderPresent(renderer);
+
     while(!quit)
     {
         // Event Handler
@@ -64,18 +70,19 @@ int main(int argc, char* args[])
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT)
                 {
+                    // Get mouse pos
                     int x, y;
                     SDL_GetMouseState(&x, &y);
+
                     zoom(xO, yO, Z, x, y);
+
+                    draw(xO, yO, Z, renderer);
+
+                    //Update the renderer
+                    SDL_RenderPresent(renderer);
                 }
                 break;
             }
-
-            draw(xO, yO, Z, renderer);
-
-            //Update the renderer
-            SDL_RenderPresent(renderer);
-
         }
     }
 
