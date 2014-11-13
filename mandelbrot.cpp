@@ -83,6 +83,12 @@ int main(int argc, char* args[])
                 }
                 break;
             }
+
+            // If quit flag is up, break out of WaitEvent loop and close
+            if (quit)
+            {
+                break;
+            }
         }
     }
 
