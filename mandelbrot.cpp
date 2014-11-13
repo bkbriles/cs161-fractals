@@ -1,9 +1,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_mouse.h>
-#include <SDL2/SDL_mixer.h>
 
 using namespace std;
 
@@ -145,3 +142,4 @@ int isBounded(double Cr, double Ci)
     // if the bound is never exceeded, say it's bounded
     return i;
 }
+
