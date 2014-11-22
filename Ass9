@@ -1,0 +1,164 @@
+//Jonathon Sonesen
+//Assignment 9
+//Sources: None
+// A text interface program with menus that will read a library file into to parallel arrays, one with tauthors and the other with titles. 
+
+
+#include<iostream>
+#include<fstream>
+#include<string>
+using namespace std;
+
+//Constant and arbitrary array size, initialize arrays at file scope
+const int ARRAY_SIZE = 1000;
+string bookTitle[ARRAY_SIZE];
+string bookAuthor[ARRAY_SIZE];
+
+// Function prototypes
+int loadData(string pathname);
+void showAll(int count);
+int showBooksByAuthor(int count, string name);
+int showBooksByTitle(int count, string title);
+
+int main() {
+	string filePath;
+	char ch = '\0';
+	int count = 0;
+	string name = "\0";
+	string title = "\0";
+
+	cout << "Welcome to Jonathon's Library Data Base." << endl;
+	cout << "Please enter the pathname to our backup file: ";
+
+	filePath = "C:/Users/PizzaWizard/Downloads/Library.txt";
+	cout << filePath;
+
+	cout << endl << endl;
+
+	count = loadData(filePath);
+
+	showAll(count);
+
+	//While the user has not entered the quit command
+	while (ch == '\0' && ch != 'Q' && ch != 'q') {
+
+		//Prompt user
+		cout << "Enter Q to (Q)uit, Search (A)uthor, Search (T)itle, (S)how All: ";
+
+		//store input
+		cin >> ch;
+
+		//format input
+		toupper(ch);
+
+		//Author selection response
+		while (ch == 'A' || ch == 'a') {
+
+			
+			cout << "Please enter the name of the author you want to search by: ";
+			cin >> name;
+			showBooksByAuthor(count, name);
+			ch = '\0';
+			
+		} 
+		while(ch == 'T' || ch == 't') {
+
+			cout << "Please enter the name of the title you want to search by: ";
+			cin >> title;
+			showBooksByTitle(count, title);
+			ch = '\0';
+			
+		} 
+		while (ch == 'S' || ch == 's') {
+		
+			showAll(count);
+			ch = '\0';
+		}		
+	}
+	//Pause and exit
+	getchar();
+	getchar();
+	return 0;
+}
+
+
+int loadData(string pathname) {
+	//line count
+	int linecount = 0;
+	ifstream file;
+
+	file.open(pathname.c_str());
+
+	while (!file) {
+
+		cout << "Cannot open the input file." << endl;								//Tell them they failed
+		cout << "Please enter the pathname to your encrypted file: ";				//Request the proper pathname
+		cin >> pathname;															//Store it
+		file.open(pathname.c_str());										//Open it
+
+	}
+	
+	// Read contents into title array, and author array
+	for (int i = 0; !file.eof(); i++)
+	{
+		getline(file, bookTitle[i]);
+		getline(file, bookAuthor[i]);
+		linecount++;
+	}
+
+	// Close file
+	file.close();	
+	return linecount;
+}
+
+void showAll(int count) {
+
+	cout << "There were " << count << " records succesfully added!" << endl;
+
+	for (int i = 0; i < count; i++) {
+		
+		cout << bookTitle[i] << " (" << bookAuthor[i] << ")" << endl;
+	}
+
+}
+
+int showBooksByAuthor(int count, string name) {
+	int found = 0;;
+	int i;
+	
+	
+	for (i = 0; i < count; i++) {
+
+		if (bookAuthor[i].find(name) != string::npos) {
+			
+			cout << bookTitle[i] << " ";
+			cout << " (" << bookAuthor[i] << ")" << endl;
+			found++;
+		}
+		
+	}
+	cout << found << " Records found." << endl;
+	return found;
+
+}
+
+int showBooksByTitle(int count, string title) {
+
+	int found = 0;;
+	int i;
+
+
+	for (i = 0; i < count; i++) {
+
+		if (bookTitle[i].find(title) != string::npos) {
+
+			cout << bookTitle[i] << " ";
+			cout << " (" << bookTitle[i] << ")" << endl;
+			found++;
+		}
+
+	}
+	cout << found << " Records found." << endl;
+	return found;
+
+}
